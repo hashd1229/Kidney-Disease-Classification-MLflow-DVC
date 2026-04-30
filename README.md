@@ -13,7 +13,7 @@ python -m venv .venv
 ```
 
 ```bash
-source .venv/Scripts/activate  # On Windows, use: .venv\Scripts\activate
+.venv/Scripts/activate
 ```
 
 
