@@ -6,14 +6,14 @@ Clone the repository
 ```bash
 https://github.com/hashd1229/Kidney-Disease-Classification-MLflow-DVC
 ```
-### STEP 01- Create a conda environment after opening the repository
+### STEP 01- Create a virtual environment after opening the repository
 
 ```bash
-conda create -n cnncls python=3.8 -y
+python -m venv .venv
 ```
 
 ```bash
-conda activate cnncls
+source .venv/Scripts/activate  # On Windows, use: .venv\Scripts\activate
 ```
 
 
