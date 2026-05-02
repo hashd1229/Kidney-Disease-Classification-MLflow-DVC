@@ -37,3 +37,31 @@ python -m venv .venv
 ```bash
 pip install -r requirements.txt
 ```
+
+## MLflow
+
+- [Documentation](https://mlflow.org/docs/latest/index.html)
+
+
+##### cmd
+- mlflow ui
+
+### dagshub
+[dagshub](https://dagshub.com/)
+
+MLFLOW_TRACKING_URI=https://dagshub.com/YOUR_PROJECT_NAME.mlflow \
+MLFLOW_TRACKING_USERNAME=USERNAME \
+MLFLOW_TRACKING_PASSWORD=PASSWORD \
+python script.py
+
+Run this to export as env variables:
+
+```bash
+
+export MLFLOW_TRACKING_URI=https://dagshub.com/USERNAME/YOUR_PROJECT_NAME.mlflow
+
+export MLFLOW_TRACKING_USERNAME=USERNAME 
+
+export MLFLOW_TRACKING_PASSWORD=PASSWORD
+
+```

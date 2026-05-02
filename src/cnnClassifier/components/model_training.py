@@ -2,6 +2,7 @@ import os
 import urllib.request as request
 from zipfile import ZipFile
 import tensorflow as tf
+from tensorflow import keras
 import time
 from pathlib import Path
 from cnnClassifier.entity.config_entity import TrainingConfig
@@ -13,7 +14,7 @@ class Training:
 
     
     def get_base_model(self):
-        self.model = tf.keras.models.load_model(
+        self.model = keras.models.load_model(
             self.config.updated_base_model_path
         )
 
@@ -30,7 +31,7 @@ class Training:
             interpolation="bilinear"
         )
 
-        valid_datagenerator = tf.keras.preprocessing.image.ImageDataGenerator(
+        valid_datagenerator = keras.preprocessing.image.ImageDataGenerator(
             **datagenerator_kwargs
         )
 
@@ -42,7 +43,7 @@ class Training:
         )
 
         if self.config.params_is_augmentation:
-            train_datagenerator = tf.keras.preprocessing.image.ImageDataGenerator(
+            train_datagenerator = keras.preprocessing.image.ImageDataGenerator(
                 rotation_range=40,
                 horizontal_flip=True,
                 width_shift_range=0.2,
@@ -63,7 +64,7 @@ class Training:
 
     
     @staticmethod
-    def save_model(path: Path, model: tf.keras.Model):
+    def save_model(path: Path, model: 'keras.Model'):
         model.save(path)
 
 
