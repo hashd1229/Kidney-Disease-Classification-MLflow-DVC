@@ -1,4 +1,6 @@
 .vscode
+.dvcignore
+dvc.lock
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
