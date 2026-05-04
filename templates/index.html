@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brain Tumor Detection</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .upload-area {
+            border: 2px dashed #ccc;
+            border-radius: 10px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 20px;
+        }
+
+        .upload-area:hover {
+            border-color: #667eea;
+            background: #f8f9fa;
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        .preview {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        #imagePreview {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 10px;
+            display: none;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 10px 0;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .clear-btn {
+            background: #6c757d;
+        }
+
+        .result {
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            display: none;
+        }
+
+        .result.show {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .tumor {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .normal {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .result h2 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .loader {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .disclaimer {
+            margin-top: 20px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 5px;
+            font-size: 12px;
+            color: #666;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧠 Brain Tumor Detection</h1>
+        <div class="subtitle">Upload MRI scan for AI analysis</div>
+
+        <div class="upload-area" id="uploadArea">
+            📁 Click or drag image here
+            <br><small>Supports: JPG, PNG</small>
+            <input type="file" id="fileInput" accept="image/*">
+        </div>
+
+        <div class="preview">
+            <img id="imagePreview" alt="Preview">
+        </div>
+
+        <button id="predictBtn" onclick="predictImage()" disabled>🔬 Analyze Image</button>
+        <button class="clear-btn" onclick="clearImage()">🗑️ Clear</button>
+
+        <div id="result" class="result"></div>
+
+        <div class="disclaimer">
+            ⚠️ Disclaimer: This is a demonstration tool. Always consult medical professionals for diagnosis.
+        </div>
+    </div>
+
+    <script>
+        let currentImageBase64 = null;
+
+        // Upload handlers
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+
+        uploadArea.onclick = () => fileInput.click();
+        
+        uploadArea.ondragover = (e) => {
+            e.preventDefault();
+            uploadArea.style.borderColor = '#667eea';
+            uploadArea.style.background = '#f8f9fa';
+        };
+        
+        uploadArea.ondragleave = () => {
+            uploadArea.style.borderColor = '#ccc';
+            uploadArea.style.background = 'transparent';
+        };
+        
+        uploadArea.ondrop = (e) => {
+            e.preventDefault();
+            uploadArea.style.borderColor = '#ccc';
+            uploadArea.style.background = 'transparent';
+            const file = e.dataTransfer.files[0];
+            if (file) handleFile(file);
+        };
+
+        fileInput.onchange = (e) => {
+            if (e.target.files[0]) handleFile(e.target.files[0]);
+        };
+
+        function handleFile(file) {
+            if (!file.type.match('image.*')) {
+                alert('Please upload an image file');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const imageData = e.target.result;
+                document.getElementById('imagePreview').src = imageData;
+                document.getElementById('imagePreview').style.display = 'block';
+                currentImageBase64 = imageData.split(',')[1];
+                document.getElementById('predictBtn').disabled = false;
+                document.getElementById('result').classList.remove('show');
+            };
+            reader.readAsDataURL(file);
+        }
+
+        async function predictImage() {
+            if (!currentImageBase64) {
+                alert('Please select an image first');
+                return;
+            }
+
+            const predictBtn = document.getElementById('predictBtn');
+            const originalText = predictBtn.innerHTML;
+            predictBtn.innerHTML = '<span class="loading-text"><span class="loader"></span> Analyzing...</span>';
+            predictBtn.disabled = true;
+
+            try {
+                const response = await fetch('/predict', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ image: currentImageBase64 })
+                });
+
+                const result = await response.json();
+                displayResult(result[0].image);
+            } catch (error) {
+                alert('Error analyzing image. Please try again.');
+                console.error('Error:', error);
+            } finally {
+                predictBtn.innerHTML = originalText;
+                predictBtn.disabled = false;
+            }
+        }
+
+        function displayResult(prediction) {
+            const resultDiv = document.getElementById('result');
+            const isTumor = prediction === 'Tumor';
+            
+            resultDiv.className = `result show ${isTumor ? 'tumor' : 'normal'}`;
+            resultDiv.innerHTML = `
+                <h2>${isTumor ? '⚠️ Tumor Detected' : '✅ Normal'}</h2>
+                <p>Diagnosis: <strong>${prediction}</strong></p>
+                <p>${isTumor ? 'Please consult a doctor for further evaluation.' : 'No tumor detected in the scan.'}</p>
+            `;
+            
+            resultDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        function clearImage() {
+            document.getElementById('imagePreview').src = '';
+            document.getElementById('imagePreview').style.display = 'none';
+            document.getElementById('result').classList.remove('show');
+            document.getElementById('predictBtn').disabled = true;
+            currentImageBase64 = null;
+            fileInput.value = '';
+        }
+    </script>
+</body>
+</html>

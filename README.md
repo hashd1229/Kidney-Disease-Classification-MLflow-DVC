@@ -65,3 +65,9 @@ $env:MLFLOW_TRACKING_USERNAME=USERNAME
 $env:MLFLOW_TRACKING_PASSWORD=YOUR_TOKEN
 
 ```
+
+###DVC cmd
+
+1. dvc init
+2. dvc repro
+3. dvc dag
