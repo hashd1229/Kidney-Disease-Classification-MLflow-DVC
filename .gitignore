@@ -161,3 +161,7 @@ cython_debug/
 #.idea/
 
 artifacts/*
+mlruns
+src\cnnClassifier.egg-info
+mlflow.db
+

@@ -1,146 +1,187 @@
-# Kidney-Disease-Classification-MLflow-DVC
+# Kidney Disease Classification with MLflow & DVC
 
+A deep learning project for classifying kidney diseases using convolutional neural networks with MLflow for experiment tracking and DVC for data versioning.
 
-## Workflows
+## Table of Contents
 
-1. Update config.yaml
-2. Update secrets.yaml [Optional]
-3. Update params.yaml
-4. Update the entity
-5. Update the configuration manager in src config
-6. Update the components
-7. Update the pipeline 
-8. Update the main.py
-9. Update the dvc.yaml
-10. app.py
+- [Overview](#overview)
+- [Project Setup](#project-setup)
+- [Development Workflow](#development-workflow)
+- [MLflow Tracking](#mlflow-tracking)
+- [DVC Commands](#dvc-commands)
+- [AWS CI/CD Deployment](#aws-cicd-deployment)
 
-# How to run?
-### STEPS:
+## Overview
 
-Clone the repository
+This project implements an end-to-end machine learning pipeline for kidney disease classification using:
+- **TensorFlow/Keras** for deep learning model
+- **MLflow** for experiment tracking and model management
+- **DVC** for data versioning and pipeline orchestration
+- **Docker** for containerization
+- **AWS EC2 + ECR** for cloud deployment
+
+## Project Setup
+
+### Prerequisites
+
+- Python 3.8+
+- pip package manager
+
+### Getting Started
+
+**1. Clone the repository**
 
 ```bash
-https://github.com/hashd1229/Kidney-Disease-Classification-MLflow-DVC
+git clone https://github.com/hashd1229/Kidney-Disease-Classification-MLflow-DVC.git
+cd Kidney-Disease-Classification-MLflow-DVC
 ```
-### STEP 01- Create a virtual environment after opening the repository
+
+**2. Create a virtual environment**
 
 ```bash
 python -m venv .venv
+.venv\Scripts\activate  # On Windows
+# source .venv/bin/activate  # On Linux/Mac
 ```
 
-```bash
-.venv/Scripts/activate
-```
+**3. Install dependencies**
 
-
-### STEP 02- install the requirements
 ```bash
 pip install -r requirements.txt
 ```
 
-## MLflow
+## Development Workflow
 
-- [Documentation](https://mlflow.org/docs/latest/index.html)
+The standard workflow for updating the project:
 
+1. Update `config/config.yaml` with configuration parameters
+2. Update `params.yaml` with training hyperparameters
+3. Update `secrets.yaml` (optional) for sensitive credentials
+4. Update entity classes in `src/cnnClassifier/entity/`
+5. Update configuration manager in `src/cnnClassifier/config/`
+6. Update component implementations in `src/cnnClassifier/components/`
+7. Update pipeline stages in `src/cnnClassifier/pipeline/`
+8. Update `main.py` to orchestrate the pipeline
+9. Update `dvc.yaml` for DVC pipeline definition
+10. Update `app.py` for Flask application (if applicable)
 
-##### cmd
-- mlflow ui
+## MLflow Tracking
 
-### dagshub
-[dagshub](https://dagshub.com/)
+### Documentation
 
-MLFLOW_TRACKING_URI=https://dagshub.com/YOUR_PROJECT_NAME.mlflow \
-MLFLOW_TRACKING_USERNAME=USERNAME \
-MLFLOW_TRACKING_PASSWORD=PASSWORD \
-python script.py
+- [MLflow Official Documentation](https://mlflow.org/docs/latest/index.html)
 
-Run this to export as env variables:
+### Running MLflow UI
 
 ```bash
-
-$env:MLFLOW_TRACKING_URI=https://dagshub.com/USERNAME/YOUR_PROJECT_NAME.mlflow
-
-$env:MLFLOW_TRACKING_USERNAME=USERNAME 
-
-$env:MLFLOW_TRACKING_PASSWORD=YOUR_TOKEN
-
+mlflow ui
 ```
 
-###DVC cmd
+### Integration with DagsHub
 
-1. dvc init
-2. dvc repro
-3. dvc dag\
+DagsHub provides a unified platform for data versioning and ML experiment tracking. Set up your environment variables:
 
-# AWS-CICD-Deployment-with-Github-Actions
+**PowerShell:**
+```powershell
+$env:MLFLOW_TRACKING_URI=https://dagshub.com/USERNAME/Kidney-Disease-Classification-MLflow-DVC.mlflow
+$env:MLFLOW_TRACKING_USERNAME=YOUR_USERNAME
+$env:MLFLOW_TRACKING_PASSWORD=YOUR_TOKEN
+```
 
-## 1. Login to AWS console.
+**Bash:**
+```bash
+export MLFLOW_TRACKING_URI=https://dagshub.com/USERNAME/Kidney-Disease-Classification-MLflow-DVC.mlflow
+export MLFLOW_TRACKING_USERNAME=YOUR_USERNAME
+export MLFLOW_TRACKING_PASSWORD=YOUR_TOKEN
+```
 
-## 2. Create IAM user for deployment
+Then run your training script:
 
-	#with specific access
+```bash
+python main.py
+```
 
-	1. EC2 access : It is virtual machine
+## DVC Commands
 
-	2. ECR: Elastic Container registry to save your docker image in aws
+### Initialize and Run DVC Pipeline
 
+```bash
+dvc init                    # Initialize DVC (if not already done)
+dvc repro                   # Reproduce the entire pipeline
+dvc dag                     # View pipeline DAG (directed acyclic graph)
+```
 
-	#Description: About the deployment
+## AWS CI/CD Deployment
 
-	1. Build docker image of the source code
+### 1. AWS Console Setup
 
-	2. Push your docker image to ECR
+Log in to your AWS console and proceed with the following steps.
 
-	3. Launch Your EC2 
+### 2. Create IAM User for Deployment
 
-	4. Pull Your image from ECR in EC2
+Create an IAM user with the following permissions:
 
-	5. Lauch your docker image in EC2
+**Required Access:**
+- **EC2**: Virtual machine instances
+- **ECR**: Elastic Container Registry (to store Docker images)
 
-	#Policy:
+**Required Policies:**
+- `AmazonEC2ContainerRegistryFullAccess`
+- `AmazonEC2FullAccess`
 
-	1. AmazonEC2ContainerRegistryFullAccess
+### 3. Create ECR Repository
 
-	2. AmazonEC2FullAccess
+Create an ECR repository to store your Docker images.
 
-	
-## 3. Create ECR repo to store/save docker image
-    - Save the URI: 566373416292.dkr.ecr.us-east-1.amazonaws.com/chicken
+**Example ECR URI:**
+```
+586723123187.dkr.ecr.ap-southeast-2.amazonaws.com/kidney
+```
 
-	
-## 4. Create EC2 machine (Ubuntu) 
+Save this URI for later use.
 
-## 5. Open EC2 and Install docker in EC2 Machine:
-	
-	
-	#optinal
+### 4. Launch EC2 Instance
 
-	sudo apt-get update -y
+Create a new EC2 instance with Ubuntu operating system.
 
-	sudo apt-get upgrade
-	
-	#required
+### 5. Install Docker on EC2
 
-	curl -fsSL https://get.docker.com -o get-docker.sh
+SSH into your EC2 instance and run:
 
-	sudo sh get-docker.sh
+```bash
+# Update system packages
+sudo apt-get update -y
+sudo apt-get upgrade -y
 
-	sudo usermod -aG docker ubuntu
+# Install Docker
+curl -fsSL https://get.docker.com -o get-docker.sh
+sudo sh get-docker.sh
 
-	newgrp docker
-	
-# 6. Configure EC2 as self-hosted runner:
-    setting>actions>runner>new self hosted runner> choose os> then run command one by one
+# Configure Docker user permissions
+sudo usermod -aG docker ubuntu
+newgrp docker
+```
 
+### 6. Configure EC2 as Self-Hosted Runner
 
-# 7. Setup github secrets:
+In your GitHub repository:
 
-    AWS_ACCESS_KEY_ID=
+1. Go to **Settings** → **Actions** → **Runners** → **New self-hosted runner**
+2. Choose your OS (Linux for Ubuntu)
+3. Run the provided commands on your EC2 instance one by one
 
-    AWS_SECRET_ACCESS_KEY=
+### 7. Set GitHub Secrets
 
-    AWS_REGION = us-east-1
+Add the following secrets in your GitHub repository settings:
 
-    AWS_ECR_LOGIN_URI = demo>>  566373416292.dkr.ecr.ap-south-1.amazonaws.com
+```
+AWS_ACCESS_KEY_ID=your_access_key
+AWS_SECRET_ACCESS_KEY=your_secret_key
+AWS_REGION=us-east-1
+AWS_ECR_LOGIN_URI=586723123187.dkr.ecr.ap-southeast-2.amazonaws.com
+ECR_REPOSITORY_NAME=kidney
+```
 
-    ECR_REPOSITORY_NAME = simple-app
+---
+
+For more information, see the [MLflow documentation](https://mlflow.org/docs/latest/index.html) and [DagsHub](https://dagshub.com/).
